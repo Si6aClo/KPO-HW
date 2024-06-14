@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+  auth:
+    build:
+      context: ./auth
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://store-auth:5432/postgres
+      JWT_SECRET: some_jwt_secret
+      JWT_EXPIRATION: 86400000
+    ports:
+      - "8081:8080"
+    depends_on:
+      - store-auth
+
+  tickets:
+    build:
+      context: ./tickets
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_URL: jdbc:postgresql://store-tickets:5432/postgres
+      JWT_SECRET: some_jwt_secret
+    ports:
+      - "8082:8080"
+    depends_on:
+      - store-tickets
+
+  store-auth:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./init-auth.sql:/docker-entrypoint-initdb.d/init.sql
+
+  store-tickets:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./init-tickets.sql:/docker-entrypoint-initdb.d/init.sql
